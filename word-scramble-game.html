@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Scramble Game</title>
+<style>
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+  background: linear-gradient(to right, #a8cbf3, #f2f2b5); /* Add gradient background */
+}
+
+.game-container {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+  margin-top: 20px;
+}
+
+
+
+h1 {
+  color: #f45167;
+}
+
+#scrambled-word {
+  font-size: 32px;
+  margin-top: 20px;
+  color: #03197a;
+}
+
+#hint {
+  font-style: italic;
+  margin-top: 10px;
+  color: #060606;
+}
+
+#feedback {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #e74c3c;
+}
+
+#guess {
+  padding: 10px;
+  margin-top: 10px;
+  width: 50vw;
+  background-color: black;
+  border-bottom: 2px solid #4a90e2; 
+  outline: none; 
+  border-radius: 0; 
+  font-size: 18px;
+  color: white;
+  transition: border-color 0.3s ease;
+}
+
+#guess::placeholder {
+  color:white; 
+}
+
+#guess:focus {
+  border-color: #2ecc71; 
+}
+
+
+#check-button,
+#refresh-button {
+  padding: 10px 20px;
+  background-color: #eb922d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+#check-button:hover,
+#refresh-button:hover {
+  background-color: #27ae60;
+}
+
+</style>
+</head>
+<body>
+  <h1>WoRd ScRaMbLe GaMe</h1>
+  <div id="scrambled-word">Loading...</div>
+  <div id="hint">Hint: </div>
+  <input type="text" id="guess" placeholder="Enter your guess">
+  <button id="check-button">Check</button>
+  <div id="feedback"></div>
+  <button id="refresh-button">Refresh</button>
+
+  <script>
+    const words = [
+    {
+        scrambled:"ditadino",
+        unscrambled: "addition",
+        hint: "The process of adding numbers"
+    },
+    {
+        scrambled:"eenigtm",
+        word: "meeting",
+        hint: "Event in which people come together"
+    },
+    {
+        scrambled:"munerb",
+        unscrambled: "number",
+        hint: "Math symbol used for counting"
+    },
+    {
+        scrambled:"xenaeghc",
+        unscrambled: "exchange",
+        hint: "The act of trading"
+    },
+    {
+        scrambled:"vnaasc",
+        unscrambled: "canvas",
+        hint: "Piece of fabric for oil painting"
+    },
+    {
+        scrambled:"nedrag",
+        unscrambled: "garden",
+        hint: "Space for planting flower and plant"
+    },
+    {
+        scrambled:"tiisoonp",
+        unscrambled: "position",
+        hint: "Location of someone or something"
+    },
+    {
+        scrambled:"ethearf",
+        unscrambled: "feather",
+        hint: "Hair like outer covering of bird"
+    },
+    {
+        scrambled:"torfmoc",
+        unscrambled: "comfort",
+        hint: "A pleasant feeling of relaxation"
+    },
+    {
+        scrambled:"tnuego",
+        unscrambled: "tongue",
+        hint: "The muscular organ of mouth"
+    },
+    {
+        scrambled:"pxeainos",
+        unscrambled: "expansion",
+        hint: "The process of increase or grow"
+    },
+    {
+        scrambled:"yrtunoc",
+        unscrambled: "country",
+        hint: "A politically identified region"
+    },
+    {
+        scrambled:"pourg",
+        unscrambled: "group",
+        hint: "A number of objects or persons"
+    },
+    {
+        scrambled:"asett",
+        unscrambled: "taste",
+        hint: "Ability of tongue to detect flavour"
+    },
+    {
+        scrambled:"retos",
+        unscrambled: "store",
+        hint: "Large shop where goods are traded"
+    },
+    {
+        scrambled:"liefd",
+        unscrambled: "field",
+        hint: "Area of land for farming activities"
+    },
+    {
+        scrambled:"rifnde",
+        unscrambled: "friend",
+        hint: "Person other than a family member"
+    },
+    {
+        scrambled:"tekcpo",
+        unscrambled: "pocket",
+        hint: "A bag for carrying small items"
+    },
+    {
+        scrambled:"edelen",
+        unscrambled: "needle",
+        hint: "A thin and sharp metal pin"
+    },
+    {
+        scrambled:"pteerx",
+        unscrambled: "expert",
+        hint: "Person with extensive knowledge"
+    },
+    {
+        scrambled:"nemtetats",
+        unscrambled: "statement",
+        hint: "A declaration of something"
+    },
+    {
+        scrambled:"ocnesd",
+        unscrambled: "second",
+        hint: "One-sixtieth of a minute"
+    },
+    {
+        scrambled:"brilray",
+        unscrambled: "library",
+        hint: "Place containing collection of books"
+    }
+    ];
+
+    const scrambledWordElement = document.getElementById("scrambled-word");
+    const hintElement = document.getElementById("hint");
+    const guessInput = document.getElementById("guess");
+    const checkButton = document.getElementById("check-button");
+    const feedbackElement = document.getElementById("feedback");
+    const refreshButton = document.getElementById("refresh-button");
+
+    let currentWordIndex = 0;
+
+    function scrambleWord(word) {
+      return word.split('').sort(() => Math.random() - 0.5).join('');
+    }
+
+    function loadWord(index) {
+      const wordObj = words[index];
+      const scrambledWord = scrambleWord(wordObj.scrambled);
+      
+      scrambledWordElement.textContent = scrambledWord;
+      hintElement.textContent = `Hint: ${wordObj.hint}`;
+      guessInput.value = "";
+      feedbackElement.textContent = "";
+    }
+
+    function checkGuess(guess, word) {
+      return guess.toLowerCase() === word.toLowerCase();
+    }
+
+    checkButton.addEventListener("click", () => {
+      const wordObj = words[currentWordIndex];
+      const guess = guessInput.value;
+
+      if (checkGuess(guess, wordObj.unscrambled)) {
+        feedbackElement.textContent = "Correct!";
+      } else {
+        feedbackElement.textContent = "Incorrect. Try again!";
+      }
+    });
+
+    refreshButton.addEventListener("click", () => {
+      currentWordIndex = (currentWordIndex + 1) % words.length;
+      loadWord(currentWordIndex);
+    });
+
+    // Initial word load
+    loadWord(currentWordIndex);
+  </script>
+</body>
+</html>
